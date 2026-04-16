@@ -1,5 +1,5 @@
 import { argv } from 'node:process'
-import { exec, spawn } from 'node:child_process'
+import { spawn } from 'node:child_process'
 
 const chapterNumber = argv[2]
 
@@ -19,8 +19,3 @@ child.on('close', (code)=> {
         process.exit(code ?? 1)
     }
 })
-// else{
-//     exec(`bash ./chapterGenerator.sh ${chapterNumber}`,(err, stdout, stderr) => {
-//         console.log(stdout)
-//     })
-// }

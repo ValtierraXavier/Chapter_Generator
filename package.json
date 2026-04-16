@@ -1,14 +1,14 @@
 {
   "name": "chaptergenerator",
   "version": "1.0.0",
-  "description": "",
+  "description": "A CLI tool to scaffold study folders and files.",
   "main": "chapterGenerator.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "newChap": "node ./chapterGenerator.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Xavier Valtierra",
   "license": "ISC",
   "type": "module"
 }
