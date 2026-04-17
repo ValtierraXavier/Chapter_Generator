@@ -20,4 +20,3 @@ const newChapter = async (chapterNumber) => {
         console.log(`Could not complete the operation \nReason:\n${err}`)
     }
 }
-newChapter(chapterNumber)

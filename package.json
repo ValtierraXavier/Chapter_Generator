@@ -5,7 +5,7 @@
   "main": "chapterGenerator.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "newChap": "node ./chapterGenerator.js"
+    "newChap": "node ./chapterGenerator.bash.js"
   },
   "keywords": [],
   "author": "Xavier Valtierra",
