@@ -49,42 +49,59 @@ plan:
                 else: setPath to config.setPath
             run tool as usual     
 */
-
-export const updatePath = async (path) => {
-    try{
-        const exists = await fileExists('config.json', './')
-        if(!exists){
-            const config = {
-                originalPath: true,
-                defaultPath: `${process.env.HOME}/CodeStuff/Code2025/jsCode/EloquentJS`,
-                userPath: ""
-            }
-            await fs.writeFile('./config.json', JSON.stringify(config, null, 2))
-        }else{
-            const file = await fs.readFile('./config.json', 'utf8')
-            let configObj = JSON.parse(file)
-            configObj.userPath = path
-            configObj.original = false
-            await fs.writeFile('./config.json', JSON.stringify(configObj, null, 2))
-        }
-
-    }catch(err){
-        console.log(err)
+const configPath = './config.json'
+const updatePath = async (path) => {
+    if(path === undefined){
+        console.log('Please enter a path to update.')
+        return
     }
-    
+    try{
+        await fs.stat(path)
+    }catch(err){
+        console.log("Please use a valid path to update.")
+        return
+    }
+    const file = await fs.readFile(configPath)
+    const config = JSON.parse(file)
+    config.previousPath = config.currentPath
+    config.currentPath = path
+    await fs.writeFile(configPath, JSON.stringify(config, null, 2))
+    const newFile = await fs.readFile(configPath, 'utf8')
+    console.log(newFile)
 }
-const fileExists = async (name, path) => {
-    try{
-        const files = await fs.readdir(path)
+// may have to write helper to handle opening config file
 
-        for(const file of files){
-            if(file === name){
-                return true
-            }
-        }
-        return false  
-    }catch(err){
-        console.log(err)
-    }
+const resetPath = async () => {
+        const file = await fs.readFile(configPath, 'utf8')
+        const config = JSON.parse(file)
+        config.currentPath = config.defaultPath
+        await fs.writeFile(configPath, JSON.stringify(config, null, 2))    
 }
 
+const viewConfig = async () => {
+        const file = await fs.readFile(configPath)
+        const config = JSON.parse(file)
+        console.log(config)
+}
+
+export const configRouter = async (arg) => {
+    if(arg === 'reset'){
+        try{
+            await resetPath()
+        }catch(err){
+            console.log('could not reset path:',err.message)
+        }
+    }else if(arg === 'view'){
+        try{
+            await viewConfig()
+        }catch(err){
+            console.log('Cannot display config:', err.message)
+        }
+    }else{
+        try{
+            await updatePath(arg)
+        }catch(err){
+            console.log('Unable to update path:',err)
+        }
+    }
+}
