@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises'
 import { argv } from 'node:process'
 import { configRouter } from './config.js'
+import { readConfig, writeConfig } from './helpers/helpers.js'
 
 
 
@@ -9,9 +10,8 @@ const newChapter = async (number) => {
         console.log('No chapter number or command provided.')
         return
     }
-        const config = await fs.readFile('./config.json', 'utf8')
-        const configObj = JSON.parse(config)
-        const basePath = configObj.currentPath 
+        const config = await readConfig()
+        const basePath = config.currentPath 
         if(await fileExists(`${basePath}/Chapter${number}/chapter${number}.js`) && await fileExists(`${basePath}/Chapter${number}/chapter${number}_data.js`)){
             console.log('Directory and files already exists.')
             return
@@ -29,7 +29,7 @@ const newChapter = async (number) => {
 
 const fileExists = async (target) => {
     try{
-        await fs.access(target)
+        (await fs.stat(target)).isFile()
         return true
     }catch(err){
         return false
@@ -38,13 +38,13 @@ const fileExists = async (target) => {
 
 const createConfig = async (target) => {
     console.log('Creating config file...')
-    const configObj = {
+    const config = {
         defaultPath: `${process.env.HOME}/CodeStuff/Code2025/jsCode/EloquentJS`,
         currentPath: `${process.env.HOME}/CodeStuff/Code2025/jsCode/EloquentJS`,
         previousPath: ''
     }
     try{
-        await fs.writeFile(target, JSON.stringify(configObj, null, 2))
+        await writeConfig(target, config)
         console.log('Config file created successfully.')
     }catch(err){
         console.log('Config file was not created successfully', err.message)
@@ -60,7 +60,7 @@ const toolRouter = async () =>{
         }
     }else if(argv[2] === 'path'){
         try{
-            await configRouter(argv[3])
+            await configRouter(argv[3], argv[4])
         }catch(err){
             console.log(err)
         }

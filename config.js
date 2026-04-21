@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises'
 import process from 'node:process'
+import { writeConfig, readConfig } from './helpers/helpers.js'
 
 /**
  * Update the path and save the config as JSON in another file.
@@ -61,45 +62,58 @@ const updatePath = async (path) => {
         console.log("Please use a valid path to update.")
         return
     }
-    const file = await fs.readFile(configPath)
-    const config = JSON.parse(file)
+    const config = await readConfig(configPath)
     config.previousPath = config.currentPath
     config.currentPath = path
-    await fs.writeFile(configPath, JSON.stringify(config, null, 2))
-    const newFile = await fs.readFile(configPath, 'utf8')
-    console.log(newFile)
+    await writeConfig(configPath, config)
+
+    console.log(`Current path is set to: ${config.currentPath}`)  
+
 }
 // may have to write helper to handle opening config file
 
 const resetPath = async () => {
-        const file = await fs.readFile(configPath, 'utf8')
-        const config = JSON.parse(file)
+        const config = await readConfig(configPath)
+        config.previousPath = config.currentPath
         config.currentPath = config.defaultPath
-        await fs.writeFile(configPath, JSON.stringify(config, null, 2))    
+        await writeConfig(configPath, config)  
+        await viewConfig()  
 }
 
 const viewConfig = async () => {
-        const file = await fs.readFile(configPath)
-        const config = JSON.parse(file)
-        console.log(config)
+        const config = await readConfig(configPath)
+        console.log(`Current path is set to: ${config.currentPath}`)
+}
+const lastPath = async () => {
+    const config = await readConfig(configPath)
+    config.currentPath = config.previousPath
+    await writeConfig(configPath, config)
+    await viewConfig()  
+
 }
 
-export const configRouter = async (arg) => {
-    if(arg === 'reset'){
+export const configRouter = async (arg1, arg2) => {
+    if(arg1 === 'reset'){
         try{
             await resetPath()
         }catch(err){
             console.log('could not reset path:',err.message)
         }
-    }else if(arg === 'view'){
+    }else if(arg1 === 'view'){
         try{
             await viewConfig()
         }catch(err){
             console.log('Cannot display config:', err.message)
         }
-    }else{
+    }else if(arg1 === 'last'){
         try{
-            await updatePath(arg)
+            await lastPath()
+        }catch(err){
+            console.log(`Could not change path to last used: ${err.message}`)
+        }
+    }else if(arg1 === 'set'){
+        try{
+            await updatePath(arg2)
         }catch(err){
             console.log('Unable to update path:',err)
         }
